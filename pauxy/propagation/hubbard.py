@@ -234,10 +234,15 @@ class Hirsch(object):
         trial : :class:`pauxy.trial_wavefunctioin.Trial`
             Trial wavefunction object.
         """
+        print('In TWO BODY DIRECT')	
         nup = system.nup
-        # fields = numpy.random.randint(2, size=system.nbasis)
-        walker.greens_function(trial)
-        nia, nib = walker.G[0].diagonal(), walker.G[1].diagonal()
+        #fields = numpy.random.randint(2, size=system.nbasis)
+        if(trial.mps_enabled):
+            trial.mps.convert_to_mps(walker.phi)
+            nia, nib = trial.mps.calc_local_density_overlap()
+        else:
+            walker.greens_function(trial)  # I cncelled this line
+            nia, nib = walker.G[0].diagonal(), walker.G[1].diagonal() # I cancelled this line
         fields = []
         fb_fac = 1.0
         if self.charge_decomp:
@@ -260,7 +265,13 @@ class Hirsch(object):
         BVb = numpy.diag([self.auxf[xi,1] for xi in fields])
         walker.phi[:,:nup] = numpy.dot(BVa, walker.phi[:,:nup])
         walker.phi[:,nup:] = numpy.dot(BVb, walker.phi[:,nup:])
-        ovlp = walker.calc_overlap(trial)
+        #ovlp = walker.calc_overlap(trial) #I cancelled this
+        if(trial.mps_enabled):
+            ovlp = trial.mps.calc_overlap()
+        else:
+            #print('In TWO BODY DIRECT')	
+            ovlp = walker.calc_overlap(trial) #I cancelled this
+
         wfac = 1.0 + 0j
         for xi in fields:
             wfac *= self.aux_wfac[xi]

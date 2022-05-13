@@ -69,6 +69,8 @@ class Hubbard(object):
         
         self.ypbc = inputs.get('ypbc', True)
         self.xpbc = inputs.get('xpbc', True)
+        print('xpbc: ',self.xpbc)
+        print('ypbc: ',self.ypbc)
 
         self.nbasis = self.nx * self.ny
         self.nactive = self.nbasis

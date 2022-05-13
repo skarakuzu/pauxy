@@ -177,6 +177,7 @@ class Mixed(object):
             # When using importance sampling we only need to know the current
             # walkers weight as well as the local energy, the walker's overlap
             # with the trial wavefunction is not needed.
+            # print('ESTIMATORS UPDATE')
             for i, w in enumerate(psi.walkers):
                 if self.thermal:
                     if self.average_gf:
@@ -211,7 +212,11 @@ class Mixed(object):
                     if step % self.energy_eval_freq == 0:
                         w.greens_function(trial)
                         if self.eval_energy:
-                            E, T, V = w.local_energy(system, rchol=trial._rchol, eri=trial._eri, UVT=trial._UVT)
+                            if(trial.mps_enabled):
+                                E,T,V = trial.mps.calc_energy()
+                            else:		
+                                #print('IN UPDATE ESTMATORS')			      
+                                E, T, V = w.local_energy(system, rchol=trial._rchol, eri=trial._eri, UVT=trial._UVT)
                         else:
                             E, T, V = 0, 0, 0
                         self.estimates[self.names.enumer] += w.weight*w.le_oratio*E.real

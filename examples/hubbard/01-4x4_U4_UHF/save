@@ -1,0 +1,1 @@
+export PYTHONPATH="${PYTHONPATH}:/mnt/home/skarakuzu/Itensor_proj/Gaussian/pauxy_1/"

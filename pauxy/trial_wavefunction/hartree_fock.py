@@ -3,6 +3,7 @@ import time
 from pauxy.estimators.mixed import local_energy
 from pauxy.estimators.greens_function import gab, gab_mod
 from pauxy.utils.io import read_qmcpack_wfn
+from . import interface
 
 class HartreeFock(object):
 
@@ -19,6 +20,11 @@ class HartreeFock(object):
         self.trial_type = numpy.complex128
         self.psi = numpy.zeros(shape=(system.nbasis, system.nup+system.ndown),
                                dtype=self.trial_type)
+        self.mps_enabled = False
+        if trial.get('mps',None)==True:
+            self.mps_enabled = True
+            self.mps = interface.interface(system.nx, system.ny, system.nup, system.ndown, system.t, system.U, system.xpbc, system.ypbc)
+        print('MPS ENABLED: ', self.mps_enabled)
         self.excite_ia = trial.get('excitation', None)
         self.wfn_file = trial.get('filename', None)
         if self.wfn_file is not None:
@@ -103,7 +109,10 @@ class HartreeFock(object):
         if self.verbose:
             print ("# Computing trial wavefunction energy.")
         start = time.time()
-        (self.energy, self.e1b, self.e2b) = local_energy(system, self.G,
+        if(self.mps_enabled):
+            (self.energy, self.e1b, self.e2b) = self.mps.calc_energy_trial()
+        else:	  
+            (self.energy, self.e1b, self.e2b) = local_energy(system, self.G,
                                                          Ghalf=[self.gup_half,
                                                          self.gdown_half])
         if self.verbose:
